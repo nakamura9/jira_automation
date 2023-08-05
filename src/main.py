@@ -13,7 +13,7 @@ def main():
 
     active = settings.get('active_projects', [])
     active_string = "', '".join(active)
-    issues = jira.search_issues(f"project in ('{active_string}') and updated >= -7d")
+    issues = jira.search_issues(f"project in ('{active_string}') and updated >= -7d", maxResults=1000)
     open_tasks, wip, closed = create_issue_table(issues)
     create_issue_summary(open_tasks, "open")
     create_issue_summary(wip, "wip")

@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 ## Running the App
 ```
-python -m src/main.py
+python  src/main.py
 ```
 The output of the application can be found in the docs/ folder.
 It consists of an excel file with all the tasks grouped by closed, wip and open as well as three summarizing text files each named closed, open and wip
