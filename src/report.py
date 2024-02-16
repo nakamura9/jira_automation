@@ -8,7 +8,8 @@ import datetime
 ISSUE_TYPE_MAP = {
     "Open": ["Open"],
     "Closed": ["Closed", "Pending Deployment"],
-    "WIP": ["In Code Review","In Progress","In QAT","IN UAT","Pending Code Review","Pending QAT","Pending UAT"],
+    "Testing": ["In QAT","IN UAT","Pending QAT","Pending UAT"],
+    "WIP": ["In Code Review","In Progress","Pending Code Review",],
 }
 
 
@@ -16,9 +17,11 @@ def create_issue_table(issues):
     issue = issues[0]
     open_tasks = []
     wip = []
+    testing = []
     closed = []
     open_issues = []
     wip_issues = []
+    testing_issues = []
     closed_issues = []
 
     for issue in issues:
@@ -41,9 +44,19 @@ def create_issue_table(issues):
                     get_rag_status(issue)
                 ]
             )
-        else: # WIP
+        elif str(issue.fields.status) in ISSUE_TYPE_MAP['WIP']:
             wip_issues.append(issue)
             wip.append(
+                [
+                    issue.fields.summary, issue.fields.issuetype, issue.fields.status.name, issue.fields.project.name,
+                    issue.fields.priority, issue.fields.assignee,
+                    human_readable_time(issue.fields.timeoriginalestimate), human_readable_time(issue.fields.timespent),
+                    issue.fields.created.split("T")[0], (issue.fields.duedate or ""), get_rag_status(issue)
+                ]
+            )
+        elif str(issue.fields.status) in ISSUE_TYPE_MAP['Testing']:
+            testing_issues.append(issue)
+            testing.append(
                 [
                     issue.fields.summary, issue.fields.issuetype, issue.fields.status.name, issue.fields.project.name,
                     issue.fields.priority, issue.fields.assignee,
@@ -59,12 +72,15 @@ def create_issue_table(issues):
         ["Summary", "Issue Type", "Status", "Project Name", "Priority","Assignee", "Estimated Time", "Time Spent", "Created", "Due Date", "RAG Status"],
         *wip,
         [],
+        ["Summary", "Issue Type", "Status", "Project Name", "Priority","Assignee", "Estimated Time", "Time Spent", "Created", "Due Date", "RAG Status"],
+        *testing,
+        [],
         ["Summary", "Issue Type", "Project Name", "Priority","Assignee", "Reporter", "Created", "RAG Status"],
         *open_tasks
     ]
 
     write_to_excel_file(issue_table)
-    return open_issues, wip_issues, closed_issues
+    return open_issues, wip_issues, testing_issues, closed_issues
 
 
 def write_to_excel_file(contents):
@@ -154,6 +170,8 @@ def get_rag_status(issue):
     age_of_ticket = (today - created).days
 
     age_score = (age_of_ticket // 3) if age_of_ticket < 30 else 10
+    # increase weight of score
+    age_score *= 2
 
     # time overspent that exceeds the estimated time.
     time_spent_score = 0 
@@ -164,9 +182,9 @@ def get_rag_status(issue):
 
     total_score = client_score + overdue_score + age_score + time_spent_score
 
-    if total_score < 16:
+    if total_score < 10:
         return "Green"
-    if total_score < 31:
+    if total_score < 21:
         return "Amber"
     return "Red"
 
