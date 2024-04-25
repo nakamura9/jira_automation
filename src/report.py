@@ -15,6 +15,8 @@ ISSUE_TYPE_MAP = {
 def create_developer_table(issues, developer):
     content = [
         ["Developer", developer],
+        ["As At", str(datetime.datetime.now())],
+        [],
         ["Summary", "Issue Type", "Project", "Priority", "Status", "Reported By", "Created", "RAG Status"]
     ]
     for issue in issues:
