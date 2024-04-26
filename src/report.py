@@ -13,6 +13,24 @@ ISSUE_TYPE_MAP = {
 }
 
 
+def create_developer_table(issues, developer):
+    content = [
+        ["Developer", developer],
+        ["As At", str(datetime.datetime.now())],
+        [],
+        ["Summary", "Issue Type", "Project", "Priority", "Status", "Reported By", "Created", "RAG Status"]
+    ]
+    for issue in issues:
+        content.append(
+            [
+                issue.fields.summary, issue.fields.issuetype, issue.fields.project.name,
+                issue.fields.priority, str(issue.fields.status), issue.fields.reporter,
+                issue.fields.created.split("T")[0], get_rag_status(issue)
+            ]
+        )
+    write_to_excel_file(content, filename=developer)
+
+
 def create_issue_table(issues):
     issue = issues[0]
     open_tasks = []
@@ -83,7 +101,7 @@ def create_issue_table(issues):
     return open_issues, wip_issues, testing_issues, closed_issues
 
 
-def write_to_excel_file(contents):
+def write_to_excel_file(contents, filename="out"):
     wb = openpyxl.Workbook()
     ws = wb.active
     for row_id, row in enumerate(contents, start=1):
@@ -97,7 +115,8 @@ def write_to_excel_file(contents):
                 ws.cell(row=row_id, column=col_id).fill = PatternFill(start_color="00FF00", fill_type = "solid")
 
 
-    wb.save('docs/out.xlsx')
+    
+    wb.save(f'docs/{filename}.xlsx')
 
 def create_issue_summary(issues, name):
     '''
