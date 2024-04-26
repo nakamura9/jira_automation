@@ -219,6 +219,6 @@ def human_readable_time(seconds):
     if not seconds:
         return ""
     days = seconds // (3600 * 24)
-    hours = seconds // 3600
+    hours = (seconds % (3600 * 24)) // 3600
     minutes = (seconds % 3600) // 60
     return f"{days}d {hours}h {minutes}m"
