@@ -3,7 +3,7 @@ import csv
 import json
 import os
 import datetime
-
+from openpyxl.styles import PatternFill
 
 ISSUE_TYPE_MAP = {
     "Open": ["Open"],
@@ -89,6 +89,13 @@ def write_to_excel_file(contents):
     for row_id, row in enumerate(contents, start=1):
         for col_id, col in enumerate(row, start=1):
             ws.cell(row=row_id, column=col_id).value = str(col)
+            if col == "Red":
+                ws.cell(row=row_id, column=col_id).fill = PatternFill(start_color="FF0000", fill_type = "solid")
+            if col == "Amber":
+                ws.cell(row=row_id, column=col_id).fill = PatternFill(start_color="FFBF00", fill_type = "solid")
+            if col == "Green":
+                ws.cell(row=row_id, column=col_id).fill = PatternFill(start_color="00FF00", fill_type = "solid")
+
 
     wb.save('docs/out.xlsx')
 
